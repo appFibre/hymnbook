@@ -8,7 +8,7 @@ import { createServer as createViteServer } from "vite";
 import { Transform } from 'node:stream'
 import {book, songs, verses} from './db/schema.js'
 import db from './db/db.js';
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and, like } from 'drizzle-orm';
 
 const isProduction = process.env.NODE_ENV === "production";
 const Port = process.env.PORT || 5173;
@@ -79,13 +79,27 @@ app.use("/*", async (req, res, next) => {
     }
 });
 
-app.get("/api/GetBooks", async (req, res) => {
+app.get("/api/getBooks", async (req, res) => {
   let t = db.select().from(book).all();
   res.json(t);
 });
 
+app.get("/api/getLanguages", async(req, res) =>{
+  let L = db.selectDistinct({language: songs.language}).from(songs).orderBy(songs.language).all();
+  res.json(L);
+})
 
 
+app.post("/api/addBook", async(req, res) =>{
+  const body = JSON.parse(await getBody(req));
+  const {book_id, name } = body;
+      let query = db.insert(book).values({
+        book_id,
+        name
+      }).onConflictDoNothing();
+      const result = await query.execute();
+      res.json(result);
+  })
 
 app.post("/api/addHymn", async(req, res) =>{
 const body = JSON.parse(await getBody(req));
@@ -94,9 +108,7 @@ const {song_id, book_id, title, language, html, text } = body;
       song_id,
       book_id,
       title,
-      language,
-      html,
-      text
+      language
     }).onConflictDoNothing();
     const result = await query.execute();
     res.json(result);
@@ -105,7 +117,7 @@ const {song_id, book_id, title, language, html, text } = body;
 app.post("/api/addVerse", async(req, res) =>{
   const body = JSON.parse(await getBody(req));
   const {song_id, book_id, verse_id,verse } = body;
-      let query = db.insert(songs).values({
+      let query = db.insert(verses).values({
         song_id,
         book_id,
         verse_id,
@@ -123,6 +135,35 @@ const result = await query.execute();
 res.json(result);
 })
 
+app.post("/api/editVerse", async(req, res) => {
+  const body = JSON.parse(await getBody(req));
+  const {song_id, book_id, verse_id,verse } = body;
+
+  let query = await db.update(verses)
+  .set({ verse: verse })
+  .where(
+    and( eq(verses.song_id, song_id),
+     eq(verses.book_id, book_id),
+     eq(verses.verse_id, verse_id)
+  )
+  )
+  res.sendStatus(200);
+  })
+
+  app.post("/api/deleteVerse", async(req, res) => {
+    const body = JSON.parse(await getBody(req));
+    const {song_id, book_id, verse_id} = body;
+    
+     await db.delete(verses)
+    .where(
+      and( eq(verses.song_id, song_id),
+       eq(verses.book_id, book_id),
+       eq(verses.verse_id, verse_id)
+    )
+    )
+    res.sendStatus(200);
+    })
+
 
 app.get("/api/getSongs", async (req, res) => {
   let query =  db.select().from(songs)
@@ -133,15 +174,20 @@ app.get("/api/getSongs", async (req, res) => {
   let bookname = req.query['book'];
   console.log(bookname);
   if (bookname && bookname.length > 0)
-    where.push(eq(book.name, bookname));
-  
+    where.push(like(book.name, bookname));
+
+
   let songnumber = req.query['number'];
   if (songnumber && songnumber.length > 0)
     where.push(eq(songs.song_id, songnumber))
 
+   let songtitle = req.query['title'];
+   if (songtitle && songtitle.length > 0)
+      where.push(like(songs.title, `%${songtitle}%`))
+
   let language = req.query['language'];
   if (language && language.length > 0)
-    where.push(eq(songs.language, language))
+    where.push(like(songs.language, language))
 
   if (where.length > 0)
     query = query.where(and(...where));
@@ -170,6 +216,7 @@ app.get("/api/getVerse", async (req, res) => {
   query = query.where(and(...where)).orderBy(verses.song_id); 
   res.json(query.all().map(r => ({...r.verses, songtitle: r.songs.title }) ));
 });
+
 
 
 
