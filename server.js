@@ -103,7 +103,7 @@ app.post("/api/addBook", async(req, res) =>{
 
 app.post("/api/addHymn", async(req, res) =>{
 const body = JSON.parse(await getBody(req));
-const {song_id, book_id, title, language, html, text } = body;
+const {song_id, book_id, title, language} = body;
     let query = db.insert(songs).values({
       song_id,
       book_id,

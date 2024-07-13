@@ -8,7 +8,8 @@ const routes = () => {
     return (
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/edit" element={<Edit />} />
+          <Route path="/edit" element={<Index />} />
+          {/* <Route path="/edit" element={<Edit />} /> */}
           <Route path="/addVerse" element={<AddVerse />} />
           <Route path="/view/:book/:id" element={<Index />} />
           <Route path="/edit/:book/:id" element={<Index />} />

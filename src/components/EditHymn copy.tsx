@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {Button,Col,Form,Input,Row,Select} from "antd";
 import swal from "sweetalert2";
 
-export const AddHymn = () => {
+export const AddHymn = (hymnData) => {
     const [form] = Form.useForm();
 
     const [books, setBooks] = useState([]);
@@ -40,7 +40,7 @@ export const AddHymn = () => {
    }, []);
     
     const bookList= books.map(b => b.name);
-    const optionsBooks = bookList.map((name, index) => ({value: index+1, label: name}));
+    const optionsBooks = bookList.map((name) => ({ value: name, label: name}));
     
     const lang = languages.map(l => l.language);
     const options = lang.map((language) => ({ value: language, label: language}));
@@ -71,7 +71,12 @@ const handleSubmit = () => {
     sessionSuccess();
   }
 
-  console.log(hymnDetails)
+  Object.values(hymnData).map((song) => {
+    console.log(`Title: ${song.title}, Song ID: ${song.number}, Language: ${song.language}`);
+  });
+
+  console.log(hymnData)
+  //console.log(hymn)
 
   return (
     <div>
@@ -95,7 +100,10 @@ const handleSubmit = () => {
                   value={hymnDetails.song_id}
                   onChange={(e) => handleChange(e.target.name, e.target.value)}
                   type="number" 
-                  placeholder="Please enter hymn number" />
+                  placeholder="Please enter hymn number"
+                  readOnly
+                  />
+                  
                 </Form.Item>
               </Col>
               <Col span={12}>

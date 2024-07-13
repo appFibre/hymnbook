@@ -20,12 +20,14 @@ export const AddVerse = () => {
 
   useEffect(() => {
     fetch(`/api/getBooks`)
-   .then(response => response.json())
-   .then(data => setBooks(data));
-}, []);
+      .then((response) => response.json())
+      .then((data) => setBooks(data));
+  }, []);
 
-const bookList= books.map(b => b.name);
-const optionsBooks = bookList.map((name) => ({ value: name, label: name}));
+  const bookList= books.map(b => b.name);
+  const optionsBooks = bookList.map((name, index) => ({value: index+1, label: name}));
+
+  console.log(optionsBooks)
 
   const handleChange = (name: string, value: string | number) => {
     setVerseDetails((prevDetails) => ({
@@ -44,7 +46,7 @@ const optionsBooks = bookList.map((name) => ({ value: name, label: name}));
   };
 
   const handleSubmit = () => {
-    fetch("./api/addVerse", {
+    fetch("/api/addVerse", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

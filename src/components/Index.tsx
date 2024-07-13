@@ -2,8 +2,10 @@ import "../index.css";
 import {useLocation, Link } from 'react-router-dom';
 import { useEffect, useState} from "react";
 import { Select, Input, Table, Button } from "antd";
+import { Hymns } from "./Hymns";
 import { ViewHymn } from "./viewHymn";
 import { EditHymn } from "./editHymn";
+import { Edit } from './Edit';
 
 export const Index = () => {
   
@@ -46,12 +48,6 @@ export const Index = () => {
    .then(data => setBooks(data));
 }, []);
 
-
-  // const handleLanguageChange = (value: string) => {
-  //   setLanguage(value);
-  // };
-
-
   const handleLanguageChange = (value:string) => {
     if (value === 'All languages') {
       setLanguage(encodeURI('%'))
@@ -68,11 +64,6 @@ export const Index = () => {
     }
   };
 
-
-  // const handleBookChange = (value: string) => {
-  //   setBook(value);
-  // };
-
   const handleNumberChange = (e) => {
     const value = e.target.value;
 
@@ -85,7 +76,6 @@ export const Index = () => {
 
   
 const lang = languages.map(l => l.language);
-//  const options = lang.map((language) => ({ value: language, label: language}));
  const options = [
   { value: 'All languages', label: 'All languages' },
   ...lang.map((language) => ({ value: language, label: language }))
@@ -98,41 +88,10 @@ const lang = languages.map(l => l.language);
   ...bookList.map((name) => ({ value: name, label: name}))
 ];
 
-  const columns = [
-    {
-      title: "Hymn Number",
-      dataIndex: "number",
-      key: "number",
-      render: (text:string) => <a href= {`./KSB Main/${text}`}>{text}</a>,
-    },
-
-    {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      render: (text, record) => (
-     <Link to={`/view/${record.category}/${record.number}`} reloadDocument>
-       {text}
-      </Link>
-      ),
-    },
-
-    {
-      title: "Book",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Language",
-      dataIndex: "language",
-      key: "language",
-    },
-  ];
-
-  const songsList = [];
+  const songList = [];
   {
     songs?.map((song, index) => {
-      songsList.push({
+      songList.push({
         key: index,
         title: `${song.title}`,
         number: `${song.song_id}`,
@@ -170,8 +129,8 @@ const lang = languages.map(l => l.language);
         />
       </div>
 
-    {(location.pathname === '/' || songs.length > 0) ?  <Table columns={columns} dataSource={songsList} /> : location.pathname.startsWith('/edit') ? <EditHymn /> : <ViewHymn /> }
-     
+    {(location.pathname === '/' || songs.length > 0) ? <Hymns songList={songList}/> : location.pathname.startsWith('/edit') ? <EditHymn /> : <ViewHymn />}
+
     </div>
   );
 };

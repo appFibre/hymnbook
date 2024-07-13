@@ -3,9 +3,9 @@ import { useParams } from "react-router-dom";
 import { Button, Form, Input } from "antd";
 import { MdDeleteForever } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
-import { Modal } from "antd";
+import { Modal, Drawer } from "antd";
 import swal from "sweetalert2";
-//import { AddVerse } from "./AddVerse";
+import { AddVerse } from "./AddVerse";
 import { EditVerse } from "./EditVerse";
 
 export const EditHymn = () => {
@@ -15,7 +15,6 @@ export const EditHymn = () => {
   const [verses, setVerses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verseData, setVerseData] = useState(null);
-
   const [deleteVerse, setDeleteVerse] = useState(null);
 
   const [editVerse, setEditVerse] = useState<{
@@ -25,6 +24,14 @@ export const EditHymn = () => {
   });
 
 
+ const [drawerVerses, setDrawerVerses] = useState(false);
+ const showDrawerVerses = () => {
+  setDrawerVerses(true);
+};
+
+const onCloseDrawerVerses = () => {
+  setDrawerVerses(false);
+};
   const [deleteModal, setDeleteModal] = useState(false);
 
   const showModalDelete = (deleteVerse) => {
@@ -123,25 +130,27 @@ export const EditHymn = () => {
       <div className="mx-auto w-full md:w-2/3 ">
         <div>
           <h1 className="font-bold text-2xl mb-2">
-            {book}: {verses[0].songtitle}{" "}
+            {verses[0].songtitle}{" "}
           </h1>
 
           <div>
             {verses?.map((verse, index) => {
               return (
-
+                
                 <div key={index} className="flex">
+                {verse.verse_id  &&  
+                (<>
                   <div>
-                    <h2
-                      className="font-semibold underline mt-4"
-                      id={`V${verse.verse_id}`}
-                    >
-                      Verse {verse.verse_id}
-                    </h2>
-                    <p className="w-full md:w-4/5">{verse.verse}</p>
-                  </div>
-
-                  <div className="flex w-full justify-around">
+                  <h2
+                    className="font-semibold underline mt-4"
+                    id={`V${verse.verse_id}`}
+                  >
+                    Verse {verse.verse_id}
+                  </h2>
+                  <p className="w-full md:w-4/5">{verse.verse}</p>
+                </div>
+                 
+                <div className="flex w-full justify-around">
                     <button>
                       <CiEdit size={24} onClick={() => showModal(verse)} />
                     </button>
@@ -149,6 +158,11 @@ export const EditHymn = () => {
                       <MdDeleteForever onClick={() =>showModalDelete(verse)} size={24} color="red" />
                     </button>
                   </div>
+                </>
+                )}
+
+
+
 
                   {deleteVerse && (
                         <>
@@ -174,6 +188,7 @@ export const EditHymn = () => {
                     <EditVerse/>
                     </Modal>
              )} */}
+
                   {verseData && (
                     <Modal
                       title={`Edit hymn: ${verses[0].songtitle} - verse ${verseData.verse_id}`}
@@ -219,8 +234,23 @@ export const EditHymn = () => {
           </div>
 
           <div className="my-6">
-            <Button type='primary'>Add Verse</Button>
+          <Button type="primary" onClick={showDrawerVerses}>
+          Add Verse
+        </Button>
           </div>
+          <Drawer
+          title="Add New Verse"
+          width={720}
+          onClose={onCloseDrawerVerses}
+          open={drawerVerses}
+          styles={{
+            body: {
+              paddingBottom: 80,
+            },
+          }}
+        >
+          <AddVerse />
+        </Drawer>
         </div>
       </div>
     </div>
