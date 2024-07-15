@@ -167,7 +167,7 @@ const onCloseDrawerVerses = () => {
                   {deleteVerse && (
                         <>
                         <Modal
-                          title="Are yo sure you want to delete"
+                          title="Are yo sure you want to delete this verse"
                           open={deleteModal}
                           onOk={handleDelete}
                           onCancel={hideModal}

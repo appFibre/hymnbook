@@ -102,11 +102,11 @@ const lang = languages.map(l => l.language);
   }
 
   return (
-    <div className="container">
-      <div className="inputs">
+    <div className=" w-full  h-1/2 mt-2 mx-4 ">
+      <div className="w-[90%] flex m-4 justify-between">
         <Select
           defaultValue="Hymn Book"
-          style={{width: 180,}}
+          className="w-1/3 md:w-1/4"
           onChange={handleBookChange}
           options={bookOptions}
         />
@@ -114,18 +114,16 @@ const lang = languages.map(l => l.language);
         <Select
           defaultValue="Language"
           title="language"
-          style={{width: 180,}}
+          className="w-1/3 md:w-1/4"
           onChange={handleLanguageChange}
           options={options}
         />
 
         <Input
-          placeholder="search by hymn number or title"
+          placeholder="search hymn by number or title"
           allowClear
           onChange={handleNumberChange}
-          style={{
-            width: 320,
-          }}
+          className="w-1/3 md:w-1/4"
         />
       </div>
 
