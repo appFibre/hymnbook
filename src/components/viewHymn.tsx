@@ -33,17 +33,14 @@ export const ViewHymn = () => {
         <h1 className="font-bold text-2xl mb-2">{verses[0].songtitle} </h1>
 
         <div>
-          {verses?.map((v, index) => {
+          {verses?.sort((v, u) => v.verse_id > u.verse_id).map((v, index) => {
             return (
               <div key={index}>
-                <h2
-                  className="font-semibold underline mt-4"
-                  id={`V${v.verse_id}`}
-                >
+                 <h2 className="font-semibold underline mt-4" id={`V${v.verse_id}`}>
                   {" "}
                   Verse {v.verse_id}
                 </h2>
-                <p className="w-full md:w-2/3">{v.verse}</p>
+                <p className="w-full md:w-2/3" dangerouslySetInnerHTML={{ __html: v.verse }} />
               </div>
             );
           })}
