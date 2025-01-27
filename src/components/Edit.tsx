@@ -33,7 +33,7 @@ export const Edit = () => {
         key: index,
         title: `${song.title}`,
         number: `${song.song_id}`,
-        category: `${song.book_id == 1 ? "RSB Main" : "Alexander Hymns"}`,
+        category: `${song.book_id == 1 ? "KSB" : "Alexander Hymns"}`,
         language: `${song.language}`,
       });
     });
