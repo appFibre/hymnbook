@@ -7,7 +7,7 @@ import db from './db/db.js';
 import { eq, sql, and, like } from 'drizzle-orm';
 
 const isProduction = process.env.NODE_ENV === "production";
-const Port = process.env.PORT || 5173;
+const Port = process.env.PORT || 9802;
 const Base = process.env.BASE || "/";
 
 const templateHtml = isProduction
@@ -40,6 +40,7 @@ if (!isProduction) {
 }
 
 app.use("/*", async (req, res, next) => {
+  console.log("Request Host:", req.hostname); // Debug the incoming hostname
 
   if (req.originalUrl.startsWith("/api/")){
     next();
@@ -281,7 +282,7 @@ app.get("/api/getVerse", async (req, res) => {
 
 
 // ? Start http server
-app.listen(Port, () => {
+app.listen(Port, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${Port}`);
 });
 
