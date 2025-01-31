@@ -1,28 +1,32 @@
 import "../index.css";
-import {useLocation, Link } from 'react-router-dom';
+import {useLocation} from 'react-router-dom';
 import { useEffect, useState} from "react";
-import { Select, Input, Table, Button } from "antd";
+import { Select, Input } from "antd";
 import { Hymns } from "./Hymns";
 import { ViewHymn } from "./viewHymn";
 import { EditHymn } from "./editHymn";
-import { Edit } from './Edit';
 
 export const Index = () => {
   
   const location = useLocation();
-
-  const [languages, setLanguages] = useState([]);
-  const [books, setBooks] = useState([]);
+  
+  const [languages, setLanguages] = useState<{ language: string }[]>([]);
   const [songs, setSongs] = useState([]);
   const [language, setLanguage] = useState<string> ('');
-  const [book, setBook] = useState<string>('');
   const [songnumber, setNumber] = useState<string>('');
   const [songtitle, setTitle] = useState<string>('');
 
+  useEffect(() => {
+    if(location.pathname === '/') 
+    fetch('/api/getSongs')
+      .then(response => response.json())
+      .then(data => setSongs(data));
+  }, []);
+
 
   const search = () => {
-    if ((book && book.length > 0) || (language && language.length >0) || (songnumber && songnumber.length > 0)) {
-    fetch(`/api/getSongs?book=${book}&language=${language}&number=${songnumber}&title=${songtitle}`)
+    if ((language && language.length >0) || (songnumber && songnumber.length > 0)) {
+    fetch(`/api/getSongs?language=${language}&number=${songnumber}&title=${songtitle}`)
       .then(async (response) => {
         const data = await response.json();
         setSongs(data);
@@ -33,7 +37,7 @@ export const Index = () => {
       });
     }
   };
-  useEffect(search, [book, language,songnumber, songtitle]);
+  useEffect(search, [language,songnumber, songtitle]);
 
   
   useEffect(() => {
@@ -41,12 +45,6 @@ export const Index = () => {
       .then(response => response.json())
       .then(data => setLanguages(data));
   }, []);
-
-  useEffect(() => {
-    fetch(`/api/getBooks`)
-   .then(response => response.json())
-   .then(data => setBooks(data));
-}, []);
 
   const handleLanguageChange = (value:string) => {
     if (value === 'All languages') {
@@ -56,15 +54,8 @@ export const Index = () => {
     }
   };
 
-  const handleBookChange = (value:string) => {
-    if (value === 'All Books') {
-      setBook(encodeURI('%'));
-    } else {
-      setBook(value);
-    }
-  };
 
-  const handleNumberChange = (e) => {
+  const handleNumberChange = (e: any) => {
     const value = e.target.value;
 
     if (!isNaN(value) && value.trim() !== '') {
@@ -74,43 +65,30 @@ export const Index = () => {
     }
   };
 
-  
+
 const lang = languages.map(l => l.language);
  const options = [
   { value: 'All languages', label: 'All languages' },
   ...lang.map((language) => ({ value: language, label: language }))
 ];
 
- 
- const bookList= books.map(b => b.name);
- const bookOptions = [
-  { value: 'All Books', label: 'All Books' },
-  ...bookList.map((name) => ({ value: name, label: name}))
-];
-
-  const songList = [];
+ let songList: any = [];
   {
-    songs?.map((song, index) => {
+    songs?.map((song: any, index) => {
       songList.push({
         key: index,
         title: `${song.title}`,
         number: `${song.song_id}`,
-        category: `${song.book_id == 1 ? "KSB" : "Alexander Hymns"}`,
         language: `${song.language}`,
       });
     });
   }
 
+  
+
   return (
     <div className=" w-full  h-1/2 mt-2 mx-4 ">
       <div className="w-[90%] flex m-4 justify-between">
-        <Select
-          defaultValue="Hymn Book"
-          className="w-1/3 md:w-1/4"
-          onChange={handleBookChange}
-          options={bookOptions}
-        />
-
         <Select
           defaultValue="Language"
           title="language"
@@ -122,7 +100,7 @@ const lang = languages.map(l => l.language);
         <Input
           placeholder="search hymn by number or title"
           allowClear
-          onChange={handleNumberChange}
+          onPressEnter={handleNumberChange}
           className="w-1/3 md:w-1/4"
         />
       </div>

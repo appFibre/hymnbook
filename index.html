@@ -4,7 +4,20 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+
+
+    <script>
+      var hostname = window.location.hostname;
+      var hymnbookName = hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
+      var songTitle = localStorage.getItem('songtitle');
+      
+      if (!songTitle) {
+      document.title = hymnbookName;
+      } else {
+      document.title = songTitle;
+      }
+    </script>
+    
   </head>
   <body>
     <div id="app">

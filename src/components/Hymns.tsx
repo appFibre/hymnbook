@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { useState} from "react";
 import { Button, Drawer, Table, Modal,Tooltip } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
-import { AddVerse } from "./AddVerse";
 import { EditDeleteHymn } from "./editDeleteHymn";
 import { AddHymn } from "./AddHymn";
 import { AddBook } from "./AddBook";
 import { MdDeleteForever } from "react-icons/md";
 
-export const Hymns = (songList) => {
+
+export const Hymns = (songList: any) => {
   const [hymnData, setHymnData] = useState(null);
   const [open, setOpen] = useState(false);
   const [drawerBooks, setDrawerBooks] = useState(false);
-  const [drawerEdit, setDrawerEdit] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [deleteHymn, setDeleteHymn] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -20,7 +19,8 @@ export const Hymns = (songList) => {
   const location = useLocation();
   const editMode = location.pathname.startsWith("/edit");
 
-  const showDrawerEdit = (hymnData) => {
+
+  const showDrawerEdit = (hymnData: any) => {
     setHymnData(hymnData);
     setOpenEdit(true);
   };
@@ -44,7 +44,7 @@ export const Hymns = (songList) => {
     setDrawerBooks(false);
   };
 
-  const showModalDelete = (deleteHymn) => {
+  const showModalDelete = (deleteHymn: any) => {
     setDeleteHymn(deleteHymn);
     setDeleteModal(true);
   };
@@ -59,8 +59,8 @@ export const Hymns = (songList) => {
       title: "Hymn Number",
       dataIndex: "number",
       key: "number",
-      render: (text, record) => (
-        <Link to={`/view/${record.category}/${record.number}`} reloadDocument>
+      render: (text: string, record: any) => (
+        <Link to={`/view/${record.number}`} reloadDocument onClick={() => localStorage.setItem('songtitle', text)}>
           {text}
         </Link>
       ),
@@ -70,18 +70,13 @@ export const Hymns = (songList) => {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (text, record) => (
-        <Link to={`/view/${record.category}/${record.number}`} reloadDocument>
+      render: (text: string, record:any) => (
+        <Link to={`/view/${record.number}`} reloadDocument onClick={() => localStorage.setItem('songtitle', text)}>
           {text}
         </Link>
       ),
     },
 
-    {
-      title: "Book",
-      dataIndex: "category",
-      key: "category",
-    },
     {
       title: "Language",
       dataIndex: "language",
@@ -114,18 +109,27 @@ export const Hymns = (songList) => {
     });
   }
 
-  const hymnlist = [];
-  Object.entries(songList).forEach(([key, array]) => {
-    array.map((song, index) => {
+  // const hymnlist = [];
+  const hymnlist: { key: number; title: string; number: string; language: string }[] = [];
+  Object.entries(songList).forEach(([key, array]: any) => {
+    array.map((song: any, index: number) => {
       hymnlist.push({
         key: index,
         title: `${song.title}`,
         number: `${song.number}`,
-        category: `${song.category}`,
         language: `${song.language}`,
       });
     });
   });
+
+
+  if (hymnlist && hymnlist.length === 1) {
+    const link = `/view/${hymnlist[0].number}`;
+    localStorage.setItem('songtitle', `${hymnlist[0].title}`)
+    window.location.href = link; 
+    return null; 
+  }
+  
 
   //delete hymn
   const handleDeleteHymn = () => {
@@ -142,8 +146,6 @@ export const Hymns = (songList) => {
     hideModal();
   };
 
-console.log(hymnData);
-  
   return (
     <div>
       {editMode && (
@@ -151,7 +153,9 @@ console.log(hymnData);
       )}
 
       <>
+
         <Table columns={columns} dataSource={hymnlist} />
+
 
         {editMode && (
           <div className="w-1/4 flex justify-between mb-2">

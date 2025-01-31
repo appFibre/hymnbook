@@ -21,6 +21,20 @@ const ssrManifest = isProduction
 const app = express();
 let vite;
 
+
+export const hostMapping = {
+  "hymnbook.pelindabamission.za.org": 1,
+  "ksb": 1,
+  "alexander": 2,
+}
+
+export function resolveBookId (hostname)  {
+  if (hostMapping[hostname]) {
+      return hostMapping[hostname];
+  }
+  return 1;
+}
+
 // ? Add vite or respective production middlewares
 if (!isProduction) {
     vite = await createViteServer({
@@ -77,9 +91,11 @@ app.use("/*", async (req, res, next) => {
 });
 
 app.get("/api/getBooks", async (req, res) => {
-  let t = db.select().from(book).all();
+  const hostname = req.hostname;
+  let t = db.select().from(book).where(like(book.name, `%${hostname}%`)).all();
   res.json(t);
 });
+
 
 app.get("/api/getLanguages", async(req, res) =>{
   let L = db.selectDistinct({language: songs.language}).from(songs).orderBy(songs.language).all();
@@ -220,16 +236,17 @@ app.post("/api/editVerse", async (req, res) => {
   })
 
 app.get("/api/getSongs", async (req, res) => {
+  let book_id = resolveBookId(req.hostname);
   try {
     let query = db.select().from(songs)
-      .innerJoin(book, eq(songs.book_id, book.book_id));
+      .innerJoin(book, eq(songs.book_id, book.book_id))
+      
+    let where = [eq(songs.book_id, book_id)];
 
-    let where = [];
-
-    let bookname = req.query['book'];
-    console.log(bookname);
-    if (bookname && bookname.length > 0)
-      where.push(like(book.name, bookname));
+    // let bookname = req.query['book'];
+    // console.log(bookname);
+    // if (bookname && bookname.length > 0)
+    //   where.push(like(book.name, bookname));
 
 
     let songnumber = req.query['number'];
@@ -256,17 +273,15 @@ app.get("/api/getSongs", async (req, res) => {
 });
 
 app.get("/api/getVerse", async (req, res) => {
+
+  let book_id = resolveBookId(req.hostname);
+
   try {
     let query = db.select().from(book)
       .innerJoin(songs, eq(songs.book_id, book.book_id))
       .leftJoin(verses, eq(verses.song_id, songs.song_id));
 
-    let where = [];
-
-    let bookname = req.query['book'];
-    console.log(bookname);
-    if (bookname && bookname.length > 0)
-      where.push(eq(book.name, bookname));
+    let where = [eq(songs.book_id, book_id)];
 
     let songnumber = req.query['number'];
     if (songnumber && songnumber.length > 0)

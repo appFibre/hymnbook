@@ -6,7 +6,7 @@ import { CiEdit } from "react-icons/ci";
 import { Modal, Drawer } from "antd";
 import swal from "sweetalert2";
 import { AddVerse } from "./AddVerse";
-import { EditVerse } from "./EditVerse";
+
 
 export const EditHymn = () => {
   const { id, book } = useParams();
