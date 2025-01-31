@@ -18,26 +18,14 @@ export const Index = () => {
 
   useEffect(() => {
     if(location.pathname === '/') 
-    fetch('/api/getSongs')
-      .then(response => response.json())
-      .then(data => setSongs(data));
-  }, []);
+      fetch('/api/getSongs')
+        .then(response => response.json())
+        .then(data => setSongs(data));
+    }, []);
 
 
-  const search = () => {
-    if ((language && language.length >0) || (songnumber && songnumber.length > 0)) {
-    fetch(`/api/getSongs?language=${language}&number=${songnumber}&title=${songtitle}`)
-      .then(async (response) => {
-        const data = await response.json();
-        setSongs(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    }
-  };
-  useEffect(search, [language,songnumber, songtitle]);
+
+  //useEffect(search, [language, songnumber, songtitle]);
 
   
   useEffect(() => {
@@ -57,12 +45,24 @@ export const Index = () => {
 
   const handleNumberChange = (e: any) => {
     const value = e.target.value;
+    let number = '';
+    let title  = '';
 
     if (!isNaN(value) && value.trim() !== '') {
-      setNumber(value);
+      number = value;
     } else {
-      setTitle(value);
+      title = value;
     }
+
+    fetch(`/api/getSongs?language=${language}&number=${number}&title=${title}`)
+      .then(async (response) => {
+        const data = await response.json();
+        setSongs(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
   };
 
 
@@ -89,6 +89,13 @@ const lang = languages.map(l => l.language);
   return (
     <div className=" w-full  h-1/2 mt-2 mx-4 ">
       <div className="w-[90%] flex m-4 justify-between">
+        <Input
+          placeholder="search hymn by number or title"
+          allowClear
+          onPressEnter={handleNumberChange}
+          className="w-1/3 md:w-1/4"
+        />
+
         <Select
           defaultValue="Language"
           title="language"
@@ -97,12 +104,6 @@ const lang = languages.map(l => l.language);
           options={options}
         />
 
-        <Input
-          placeholder="search hymn by number or title"
-          allowClear
-          onPressEnter={handleNumberChange}
-          className="w-1/3 md:w-1/4"
-        />
       </div>
 
     {(location.pathname === '/' || songs.length > 0) ? <Hymns songList={songList}/> : location.pathname.startsWith('/edit') ? <EditHymn /> : <ViewHymn />}

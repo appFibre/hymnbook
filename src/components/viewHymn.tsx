@@ -31,12 +31,12 @@ export const ViewHymn = () => {
         <h1 className="font-bold text-2xl mb-2">{verses[0].songtitle} </h1>
 
         <div>
-          {verses?.sort((v, u) => parseFloat(v.verse_id == 0 ? 1.5 : v.verse_id) - parseFloat(u.verse_id == 0 ? 1.5 : u.verse_id)).map((v, index) => {
+          {verses?.sort((v, u) => parseFloat(v.verse_id % 10 == 0 ? v.verse_id + 1.5 : v.verse_id) - parseFloat(u.verse_id % 10 == 0 ? u.verse_id + 1.5 : u.verse_id)).map((v, index) => {
             return (
               <div key={index}>
                  <h2 className="font-semibold underline mt-4" id={`V${v.verse_id}`}>
                   {" "}
-                  {v.verse_id === 99 ? "" : v.verse_id === 0 ? "Chorus" : v.verse_id}
+                  {v.verse_id === 99 ? "" : v.verse_id % 10 == 0 ? "Chorus" : v.verse_id}
                 </h2>
                 <p className="w-full md:w-2/3" dangerouslySetInnerHTML={{ __html: v.verse }} />
               </div>
