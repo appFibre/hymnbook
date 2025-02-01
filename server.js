@@ -4,7 +4,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import {book, songs, verses} from './db/schema.js'
 import db from './db/db.js';
-import { eq, sql, and, like } from 'drizzle-orm';
+import { sql, eq, or, and, like } from 'drizzle-orm';
 
 const isProduction = process.env.NODE_ENV === "production";
 const Port = process.env.PORT || 9802;
@@ -243,19 +243,13 @@ app.get("/api/getSongs", async (req, res) => {
       
     let where = [eq(songs.book_id, book_id)];
 
-    // let bookname = req.query['book'];
-    // console.log(bookname);
-    // if (bookname && bookname.length > 0)
-    //   where.push(like(book.name, bookname));
-
-
     let songnumber = req.query['number'];
     if (songnumber && songnumber.length > 0)
       where.push(eq(songs.song_id, songnumber))
 
-    let songtitle = req.query['title'];
-    if (songtitle && songtitle.length > 0)
-      where.push(like(songs.title, `%${songtitle}%`))
+    let search = req.query['search'];
+    if (search && search.length > 0)
+      where.push(or( like(songs.title, `%${search}%`), like(songs.song_id, `${search}%`)));
 
     let language = req.query['language'];
     if (language && language.length > 0)
@@ -271,6 +265,27 @@ app.get("/api/getSongs", async (req, res) => {
     res.status(500).json({ message: "Failed to retrieve songs", error: error.message });
   }
 });
+
+app.get("/api/getSong", async (req, res) => {
+
+  let book_id = resolveBookId(req.hostname);
+
+  try {
+    let query = db.select({"song_id": songs.song_id
+      , "title": songs.title
+      , "language": songs.language
+      , "prev": sql`(select max(song_id) from songs where book_id = ${book_id} and song_id < ${req.query['number']})` 
+      , "next": sql`(select min(song_id) from songs where book_id = ${book_id} and song_id > ${req.query['number']})` 
+    }
+    ).from(songs)
+    query = query.where(and(eq(songs.book_id, book_id), eq(songs.song_id, req.query['number']))); 
+    res.json(query.get());
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to retrieve verse", error: error.message });
+  }
+});
+
 
 app.get("/api/getVerse", async (req, res) => {
 

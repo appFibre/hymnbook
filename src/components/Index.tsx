@@ -13,8 +13,6 @@ export const Index = () => {
   const [languages, setLanguages] = useState<{ language: string }[]>([]);
   const [songs, setSongs] = useState([]);
   const [language, setLanguage] = useState<string> ('');
-  const [songnumber, setNumber] = useState<string>('');
-  const [songtitle, setTitle] = useState<string>('');
 
   useEffect(() => {
     if(location.pathname === '/') 
@@ -22,11 +20,6 @@ export const Index = () => {
         .then(response => response.json())
         .then(data => setSongs(data));
     }, []);
-
-
-
-  //useEffect(search, [language, songnumber, songtitle]);
-
   
   useEffect(() => {
        fetch(`/api/getLanguages`)
@@ -44,19 +37,11 @@ export const Index = () => {
 
 
   const handleNumberChange = (e: any) => {
-    const value = e.target.value;
-    let number = '';
-    let title  = '';
-
-    if (!isNaN(value) && value.trim() !== '') {
-      number = value;
-    } else {
-      title = value;
-    }
-
-    fetch(`/api/getSongs?language=${language}&number=${number}&title=${title}`)
+    fetch(`/api/getSongs?language=${language}&search=${e.target.value}`)
       .then(async (response) => {
-        const data = await response.json();
+        let data = await response.json();
+        if (data.length > 1 && data[0].song_id == e.target.value )
+          data = data.slice(0, 1);
         setSongs(data);
       })
       .catch((error) => {
